@@ -4,14 +4,55 @@ import Victory from "@/assets/victory.svg";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { apiClient } from "@/lib/api-client";
+import { SIGNUP_ROUTE } from "@/utils/constants";
 
 function Auth() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 
+	const validateSignupData = (email, password) => {
+		if (!email) {
+			toast.error("Please enter your Email");
+			return false;
+		}
+
+		if (!password) {
+			toast.error("Please enter your Password");
+			return false;
+		}
+
+		if (password.length < 8) {
+			toast.error("Password must be at least 8 characters long");
+			return false;
+		}
+
+		if (!confirmPassword) {
+			toast.error("Please confirm your Password");
+			return false;
+		}
+
+		if (password !== confirmPassword) {
+			toast.error("Passwords do not match");
+			return false;
+		}
+
+		return true;
+	};
+
 	const handleLogin = async () => {};
-	const handleSignup = async () => {};
+
+	const handleSignup = async () => {
+		if (validateSignupData(email, password)) {
+			const response = await apiClient.post(SIGNUP_ROUTE, {
+				email,
+				password,
+			});
+			console.log({ response });
+		}
+	};
 
 	return (
 		<div className="h-[100vh] w-[100vw] flex items-center justify-center">

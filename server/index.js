@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import authRoute from "./routes/authRoute.js";
 
 dotenv.config();
 
@@ -20,10 +21,11 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
+app.use("/api/auth", authRoute);
 
-app.get("/", (req, res) => {
-	res.send("Hello World!");
-});
+// app.get("/", (req, res) => {
+// 	res.send("Hello World!");
+// });
 
 app.listen(PORT, () => {
 	console.log(`[+] Server is running on port: ${PORT}`);
