@@ -10,6 +10,7 @@ lerna-debug.log*
 # Ignore node_modules folders in both client and server 
 client/node_modules/ 
 server/node_modules/
+node_modules/
 
 # Ignore build files
 dist

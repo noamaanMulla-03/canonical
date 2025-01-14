@@ -51,21 +51,24 @@ function Auth() {
 		const confirmPassword = password;
 
 		if (validateData(email, password, confirmPassword)) {
-			const response = await apiClient.post(
-				LOGIN_ROUTE,
-				{
-					email,
-					password,
-				},
-				{ withCredentials: true }
-			);
-			// console.log({ response });
+			try {
+				const response = await apiClient.post(
+					LOGIN_ROUTE,
+					{
+						email,
+						password,
+					},
+					{ withCredentials: true }
+				);
 
-			if (response.data.user.id) {
-				setUserInfo(response.data.user);
+				if (response.data.user.id) {
+					setUserInfo(response.data.user);
 
-				if (response.data.user.profileSetup) navigate("/chat");
-				else navigate("/profile");
+					if (response.data.user.profileSetup) navigate("/chat");
+					else navigate("/profile");
+				}
+			} catch (error) {
+				console.log(`[-] Error: ${error}`);
 			}
 		}
 	};

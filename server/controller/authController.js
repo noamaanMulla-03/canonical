@@ -6,8 +6,8 @@ dotenv.config();
 
 const maxAge = 1000 * 60 * 60 * 24 * 3;
 
-const createToken = (email, password) => {
-	const payload = { email, password };
+const createToken = (email, userId) => {
+	const payload = { email, userId };
 	const secret = process.env.JWT_KEY;
 	const options = { expiresIn: maxAge };
 
@@ -25,6 +25,7 @@ const validateData = (email, password) => {
 const signup = async (req, res, next) => {
 	try {
 		const { email, password } = req.body;
+		console.log("LOG: ", req.body);
 
 		const { valid, message } = validateData(email, password);
 		if (!valid) return res.status(400).json({ error: message });
@@ -94,4 +95,25 @@ const login = async (req, res, next) => {
 	}
 };
 
-export { signup, login };
+const getUserInfo = async (req, res, next) => {
+	try {
+		const user = await User.findById(req.userId);
+
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		return res.status(200).json({
+			id: user.id,
+			email: user.email,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			image: user.image,
+			colorCode: user.colorCode,
+			profileSetup: user.profileSetup,
+		});
+	} catch (error) {
+		console.log(`[-] Error in getUserInfo: ${error.message}`);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+};
+
+export { signup, login, getUserInfo };
