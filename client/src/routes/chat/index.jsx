@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { useAppStore } from "../../store/index";
+import { useAppStore } from "@/store/index";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 

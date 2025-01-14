@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Auth from "./routes/auth";
-import Chat from "./routes/chat";
-import Home from "./routes/home";
-import { useAppStore } from "./store/index";
-import { apiClient } from "./lib/api-client";
-import { GET_USER } from "./utils/constants";
+import Auth from "@/routes/auth";
+import Chat from "@/routes/chat";
+import Home from "@/routes/home";
+import { useAppStore } from "@/store/index";
+import { apiClient } from "@/lib/api-client";
+import { GET_USER } from "@/utils/constants";
 
 const PrivateRoutes = ({ children }) => {
 	const userInfo = useAppStore((state) => state.userInfo);

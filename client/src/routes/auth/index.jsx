@@ -9,7 +9,7 @@ import { apiClient } from "@/lib/api-client";
 import { SIGNUP_ROUTE } from "@/utils/constants";
 import { LOGIN_ROUTE } from "@/utils/constants";
 import { useNavigate } from "react-router-dom";
-import { useAppStore } from "../../store";
+import { useAppStore } from "@/store";
 
 function Auth() {
 	const [email, setEmail] = useState("");
