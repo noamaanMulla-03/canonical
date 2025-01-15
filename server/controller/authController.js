@@ -25,7 +25,6 @@ const validateData = (email, password) => {
 const signup = async (req, res, next) => {
 	try {
 		const { email, password } = req.body;
-		console.log("LOG: ", req.body);
 
 		const { valid, message } = validateData(email, password);
 		if (!valid) return res.status(400).json({ error: message });
@@ -116,4 +115,43 @@ const getUserInfo = async (req, res, next) => {
 	}
 };
 
-export { signup, login, getUserInfo };
+const updateProfile = async (req, res, next) => {
+	try {
+		const { userId } = req;
+		const user = await User.findById(userId);
+
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		const { firstName, lastName, image, colorCode } = req.body;
+
+		if (!firstName || !lastName || colorCode === undefined)
+			return res.status(400).json({ error: "Please fill in all fields" });
+
+		const updatedUser = await User.findByIdAndUpdate(
+			userId,
+			{
+				firstName,
+				lastName,
+				image,
+				colorCode,
+				profileSetup: true,
+			},
+			{ new: true, runValidators: true }
+		);
+
+		return res.status(200).json({
+			id: updatedUser.id,
+			email: updatedUser.email,
+			firstName: updatedUser.firstName,
+			lastName: updatedUser.lastName,
+			image: updatedUser.image,
+			colorCode: updatedUser.colorCode,
+			profileSetup: updatedUser.profileSetup,
+		});
+	} catch (error) {
+		console.log(`[-] Error in updateProfile: ${error.message}`);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+};
+
+export { signup, login, getUserInfo, updateProfile };
