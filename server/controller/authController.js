@@ -154,4 +154,18 @@ const updateProfile = async (req, res, next) => {
 	}
 };
 
-export { signup, login, getUserInfo, updateProfile };
+const updateProfileImage = async (req, res, next) => {
+	try {
+		const { userId } = req;
+		const user = await User.findById(userId);
+
+		console.log("REACHED HERE: ", user);
+
+		if (!user) return res.status(404).json({ error: "User not found" });
+	} catch (error) {
+		console.log(`[-] Error in updateProfileImage: ${error.message}`);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+};
+
+export { signup, login, getUserInfo, updateProfile, updateProfileImage };

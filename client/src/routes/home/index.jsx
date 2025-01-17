@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { SET_USER } from "@/utils/constants";
 import { apiClient } from "@/lib/api-client";
+import { SET_PROFILE_IMAGE } from "@/utils/constants";
 
 function Home() {
 	const userInfo = useAppStore((state) => state.userInfo);
@@ -18,7 +19,7 @@ function Home() {
 	const navigate = useNavigate();
 	const [firstName, setFirstName] = useState(userInfo.firstName);
 	const [lastName, setLastName] = useState(userInfo.lastName);
-	const [image, setImage] = useState(null);
+	const [image, setImage] = useState(userInfo.image);
 	const [hovered, setHovered] = useState(false);
 	const [selectedColor, setSelectedColor] = useState(userInfo.colorCode);
 	const fileInputRef = useRef(null);
@@ -74,7 +75,24 @@ function Home() {
 		current.click();
 	};
 
-	const handleImageChange = async () => {};
+	const handleImageChange = async (e) => {
+		const file = e.target.files[0];
+		if (!file) return;
+
+		const formData = new FormData();
+		formData.append("profile-image", file);
+
+		const response = await apiClient.post(SET_PROFILE_IMAGE, formData, {
+			withCredentials: true,
+		});
+
+		if (response.status === 200 && response.data) {
+			// const objectUrl = URL.createObjectURL(file);
+			// setImage(objectUrl);
+			console.log(response.data);
+			toast.success("Profile Image updated successfully!");
+		}
+	};
 
 	const handleDeleteImage = async () => {};
 
@@ -93,7 +111,7 @@ function Home() {
 						<Avatar className="h-32 w-32 md:w-48 md:h-48 rounded-full overflow-hidden">
 							{image ? (
 								<AvatarImage
-									image={image}
+									src={image}
 									alt="profile"
 									className="object-cover w-full h-full bg-black"
 								/>
