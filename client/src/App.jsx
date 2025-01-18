@@ -6,6 +6,7 @@ import Home from "@/routes/home";
 import { useAppStore } from "@/store/index";
 import { apiClient } from "@/lib/api-client";
 import { GET_USER } from "@/utils/constants";
+import { nullUser } from "./store/slice/auth-slice";
 
 const PrivateRoutes = ({ children }) => {
 	const userInfo = useAppStore((state) => state.userInfo);
@@ -25,12 +26,15 @@ const getUser = async (setUserInfo, setLoading) => {
 			withCredentials: true,
 		});
 
+		// console.log(response.data);
+		// console.log(`User image link: ${HOST}/${response.data.image}`);
+
 		if (response.status === 200 && response.data.id)
 			setUserInfo(response.data);
-		else setUserInfo(undefined);
+		else setUserInfo(nullUser);
 	} catch (error) {
 		console.log("[-] Error in App.jsx: ", error.message);
-		setUserInfo(undefined);
+		setUserInfo(nullUser);
 	} finally {
 		setLoading(false);
 	}
@@ -42,7 +46,7 @@ function App() {
 
 	useEffect(() => {
 		try {
-			if (!userInfo) getUser(setUserInfo, setLoading);
+			if (userInfo === nullUser) getUser(setUserInfo, setLoading);
 			else setLoading(false);
 		} catch (error) {
 			console.log("[-] Error in App.jsx: ", error.message);

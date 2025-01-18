@@ -27,6 +27,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+server/upload/profile-picture/*
+!server/upload/profile-picture/.gitkeep
 
 # Ignore environment files 
 .env

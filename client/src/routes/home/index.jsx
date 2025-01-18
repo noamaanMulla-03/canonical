@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { colors } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { SET_USER } from "@/utils/constants";
+import { HOST, SET_USER } from "@/utils/constants";
 import { apiClient } from "@/lib/api-client";
 import { SET_PROFILE_IMAGE } from "@/utils/constants";
 
@@ -51,8 +51,6 @@ function Home() {
 				{ withCredentials: true }
 			);
 
-			console.log(response);
-
 			if (response.status === 200 && response.data) {
 				setUserInfo({ ...response.data });
 				toast.success("Profile updated successfully");
@@ -82,14 +80,19 @@ function Home() {
 		const formData = new FormData();
 		formData.append("profile-image", file);
 
+		setImage(URL.createObjectURL(file));
 		const response = await apiClient.post(SET_PROFILE_IMAGE, formData, {
 			withCredentials: true,
 		});
 
 		if (response.status === 200 && response.data) {
-			// const objectUrl = URL.createObjectURL(file);
-			// setImage(objectUrl);
-			console.log(response.data);
+			const newImageURL = `${HOST}/${response.data.image}`;
+			setUserInfo((prevUserInfo) => ({
+				...prevUserInfo,
+				image: newImageURL,
+			}));
+
+			console.log("USER INFO:", userInfo);
 			toast.success("Profile Image updated successfully!");
 		}
 	};
@@ -109,7 +112,7 @@ function Home() {
 						onMouseLeave={() => setHovered(false)}
 					>
 						<Avatar className="h-32 w-32 md:w-48 md:h-48 rounded-full overflow-hidden">
-							{image ? (
+							{image !== "" ? (
 								<AvatarImage
 									src={image}
 									alt="profile"

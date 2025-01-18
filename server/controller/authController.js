@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { compare } from "bcrypt";
 import User from "../model/userModel.js";
 import dotenv from "dotenv";
+import { renameSync } from "fs";
 dotenv.config();
 
 const maxAge = 1000 * 60 * 60 * 24 * 3;
@@ -156,16 +157,52 @@ const updateProfile = async (req, res, next) => {
 
 const updateProfileImage = async (req, res, next) => {
 	try {
+		if (!req.file)
+			return res.status(400).json({ error: "Please upload an image" });
+
+		const timestamp = Date.now();
+
+		const sanitizedOriginalName = req.file.originalname.replace(
+			/[^a-zA-Z0-9._-]/g,
+			""
+		);
+		const fileName = `upload/profile-picture/${timestamp}-${sanitizedOriginalName}`;
+
+		renameSync(req.file.path, fileName);
+
 		const { userId } = req;
-		const user = await User.findById(userId);
+		const updatedUser = await User.findByIdAndUpdate(
+			userId,
+			{ image: fileName },
+			{ new: true, runValidators: true }
+		);
 
-		console.log("REACHED HERE: ", user);
-
-		if (!user) return res.status(404).json({ error: "User not found" });
+		return res.status(200).json({
+			image: updatedUser.image,
+		});
 	} catch (error) {
 		console.log(`[-] Error in updateProfileImage: ${error.message}`);
 		return res.status(500).json({ error: "Internal server error" });
 	}
 };
 
-export { signup, login, getUserInfo, updateProfile, updateProfileImage };
+const removeProfileImage = async (req, res, next) => {
+	try {
+		const { userId } = req;
+		const user = await User.findById(userId);
+
+		if (!user) return res.status(404).json({ error: "User not found" });
+	} catch (error) {
+		console.log(`[-] Error in removeProfileImage: ${error.message}`);
+		return res.status(500).json({ error: "Internal server error" });
+	}
+};
+
+export {
+	signup,
+	login,
+	getUserInfo,
+	updateProfile,
+	updateProfileImage,
+	removeProfileImage,
+};
