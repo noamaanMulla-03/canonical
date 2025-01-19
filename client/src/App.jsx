@@ -6,7 +6,7 @@ import Home from "@/routes/home";
 import { useAppStore } from "@/store/index";
 import { apiClient } from "@/lib/api-client";
 import { GET_USER } from "@/utils/constants";
-import { nullUser } from "./store/slice/auth-slice";
+import { HOST } from "@/utils/constants";
 
 const PrivateRoutes = ({ children }) => {
 	const userInfo = useAppStore((state) => state.userInfo);
@@ -26,15 +26,19 @@ const getUser = async (setUserInfo, setLoading) => {
 			withCredentials: true,
 		});
 
-		// console.log(response.data);
-		// console.log(`User image link: ${HOST}/${response.data.image}`);
+		if (response.status === 200 && response.data.id) {
+			const userData = response.data;
 
-		if (response.status === 200 && response.data.id)
-			setUserInfo(response.data);
-		else setUserInfo(nullUser);
+			setUserInfo({
+				...userData,
+				image: userData.image
+					? `${HOST}/${userData.image}`
+					: userData.image,
+			});
+		} else setUserInfo(undefined);
 	} catch (error) {
 		console.log("[-] Error in App.jsx: ", error.message);
-		setUserInfo(nullUser);
+		setUserInfo(undefined);
 	} finally {
 		setLoading(false);
 	}
@@ -46,8 +50,9 @@ function App() {
 
 	useEffect(() => {
 		try {
-			if (userInfo === nullUser) getUser(setUserInfo, setLoading);
+			if (userInfo === undefined) getUser(setUserInfo, setLoading);
 			else setLoading(false);
+			console.log(userInfo);
 		} catch (error) {
 			console.log("[-] Error in App.jsx: ", error.message);
 		}
@@ -62,7 +67,6 @@ function App() {
 	}
 
 	return (
-		// <BrowserRouter>
 		<Routes>
 			<Route
 				path="/auth"
@@ -98,7 +102,6 @@ function App() {
 			/>
 			<Route path="*" element={<Navigate to="/auth" />}></Route>
 		</Routes>
-		// </BrowserRouter>
 	);
 }
 

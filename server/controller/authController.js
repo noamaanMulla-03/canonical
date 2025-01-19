@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { compare } from "bcrypt";
 import User from "../model/userModel.js";
 import dotenv from "dotenv";
-import { renameSync } from "fs";
+import { renameSync, unlinkSync } from "fs";
 dotenv.config();
 
 const maxAge = 1000 * 60 * 60 * 24 * 3;
@@ -192,6 +192,16 @@ const removeProfileImage = async (req, res, next) => {
 		const user = await User.findById(userId);
 
 		if (!user) return res.status(404).json({ error: "User not found" });
+
+		if (!user.image)
+			return res.status(400).json({ error: "No image found" });
+
+		if (user.image) unlinkSync(user.image);
+
+		user.image = undefined;
+		await user.save();
+
+		return res.status(200).send({ message: "Image removed successfully" });
 	} catch (error) {
 		console.log(`[-] Error in removeProfileImage: ${error.message}`);
 		return res.status(500).json({ error: "Internal server error" });

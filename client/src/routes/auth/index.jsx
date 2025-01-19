@@ -68,7 +68,13 @@ function Auth() {
 					else navigate("/profile");
 				}
 			} catch (error) {
-				console.log(`[-] Error: ${error}`);
+				if (error.response.status === 404)
+					return toast.error("User not found");
+
+				if (error.response.status === 400)
+					return toast.error("Invalid credentials");
+
+				return toast.error("Internal server error");
 			}
 		}
 	};
@@ -133,9 +139,11 @@ function Auth() {
 							>
 								<Input
 									placeholder="Email"
+									autocomplete="off"
 									type="email"
 									className="rounded-full p-6"
 									value={email}
+									name="email"
 									onChange={(e) => setEmail(e.target.value)}
 								/>
 								<Input
@@ -143,6 +151,7 @@ function Auth() {
 									type="password"
 									className="rounded-full p-6"
 									value={password}
+									name="password"
 									onChange={(e) =>
 										setPassword(e.target.value)
 									}
@@ -160,9 +169,11 @@ function Auth() {
 							>
 								<Input
 									placeholder="Email"
+									autocomplete="off"
 									type="email"
 									className="rounded-full p-6"
 									value={email}
+									name="email"
 									onChange={(e) => setEmail(e.target.value)}
 								/>
 								<Input
@@ -170,6 +181,7 @@ function Auth() {
 									type="password"
 									className="rounded-full p-6"
 									value={password}
+									name="password"
 									onChange={(e) =>
 										setPassword(e.target.value)
 									}
@@ -179,6 +191,7 @@ function Auth() {
 									type="password"
 									className="rounded-full p-6"
 									value={confirmPassword}
+									name="confirmPassword"
 									onChange={(e) =>
 										setConfirmPassword(e.target.value)
 									}

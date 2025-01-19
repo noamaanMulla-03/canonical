@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { HOST, SET_USER } from "@/utils/constants";
 import { apiClient } from "@/lib/api-client";
-import { SET_PROFILE_IMAGE } from "@/utils/constants";
+import { SET_PROFILE_IMAGE, REMOVE_PROFILE_IMAGE } from "@/utils/constants";
 
 function Home() {
 	const userInfo = useAppStore((state) => state.userInfo);
@@ -21,7 +21,7 @@ function Home() {
 	const [lastName, setLastName] = useState(userInfo.lastName);
 	const [image, setImage] = useState(userInfo.image);
 	const [hovered, setHovered] = useState(false);
-	const [selectedColor, setSelectedColor] = useState(userInfo.colorCode);
+	const [selectedColor, setSelectedColor] = useState(userInfo.colorCode || 0);
 	const fileInputRef = useRef(null);
 
 	const validate = () => {
@@ -45,13 +45,13 @@ function Home() {
 				{
 					firstName,
 					lastName,
-					image,
 					colorCode: selectedColor,
 				},
 				{ withCredentials: true }
 			);
 
 			if (response.status === 200 && response.data) {
+				console.log(response.data);
 				setUserInfo({ ...response.data });
 				toast.success("Profile updated successfully");
 				navigate("/chat");
@@ -87,17 +87,36 @@ function Home() {
 
 		if (response.status === 200 && response.data) {
 			const newImageURL = `${HOST}/${response.data.image}`;
-			setUserInfo((prevUserInfo) => ({
-				...prevUserInfo,
-				image: newImageURL,
-			}));
 
-			console.log("USER INFO:", userInfo);
+			setUserInfo({
+				...userInfo,
+				image: image ? newImageURL : userInfo.image,
+			});
+
 			toast.success("Profile Image updated successfully!");
 		}
 	};
 
-	const handleDeleteImage = async () => {};
+	const handleDeleteImage = async () => {
+		try {
+			const response = await apiClient.delete(REMOVE_PROFILE_IMAGE, {
+				withCredentials: true,
+			});
+
+			if (response.status === 200 && response.data) {
+				setUserInfo({
+					...userInfo,
+					image: undefined,
+				});
+
+				setImage(undefined);
+				toast.success("Profile Image removed successfully!");
+			}
+		} catch (error) {
+			console.log(`[-] Error in handleDeleteImage: ${error.message}`);
+			toast.error("Internal server error");
+		}
+	};
 
 	return (
 		<div className="bg-[#1b1c24] h-[100vh] flex items-center justify-center flex-col gap-10">
@@ -112,7 +131,7 @@ function Home() {
 						onMouseLeave={() => setHovered(false)}
 					>
 						<Avatar className="h-32 w-32 md:w-48 md:h-48 rounded-full overflow-hidden">
-							{image !== "" ? (
+							{image ? (
 								<AvatarImage
 									src={image}
 									alt="profile"
@@ -163,6 +182,8 @@ function Home() {
 								type="email"
 								disabled={true}
 								value={userInfo.email}
+								name="EMAIL"
+								autoComplete="off"
 							/>
 						</div>
 						<div className="w-full">
@@ -170,7 +191,9 @@ function Home() {
 								className="rounded-lg p-6 bg-[#2c2e3b] border-none"
 								placeholder="First Name"
 								type="text"
-								value={firstName}
+								value={firstName || ""}
+								name="FIRST_NAME"
+								autoComplete="off"
 								onChange={(e) => setFirstName(e.target.value)}
 							/>
 						</div>
@@ -179,7 +202,9 @@ function Home() {
 								className="rounded-lg p-6 bg-[#2c2e3b] border-none"
 								placeholder="Last Name"
 								type="text"
-								value={lastName}
+								value={lastName || ""}
+								name="LAST_NAME"
+								autoComplete="off"
 								onChange={(e) => setLastName(e.target.value)}
 							/>
 						</div>

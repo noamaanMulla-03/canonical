@@ -24,13 +24,13 @@ app.use(
 	})
 );
 
+app.use(
+	"/upload/profile-picture",
+	express.static(path.join(__dirname, "upload/profile-picture"))
+);
 app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth", authRoute);
-app.use(
-	"upload/profile-picture",
-	express.static(path.join(__dirname, "./upload/profile-picture"))
-);
 
 app.listen(PORT, () => {
 	console.log(`[+] Server is running on port: ${PORT}`);
